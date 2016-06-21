@@ -6,6 +6,8 @@ build_android/jni/ExternalDependencies.mk
 build_android/local.properties
 build_android/proguard-project.txt
 build_unix/build
+build_unix/build-ui
+Source/build-ui_*
 Debug
 Release
 ReleaseWithDebugger
