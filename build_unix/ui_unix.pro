@@ -20,14 +20,19 @@ INCLUDEPATH +=../ \
 SOURCES += ../Source/ui_unix/main.cpp\
         ../Source/ui_unix/mainwindow.cpp \
         ../Source/ui_unix/GSH_OpenGLUnix.cpp \
-        ../Source/ui_unix/PH_HidUnix.cpp
+        ../Source/ui_unix/StatsManager.cpp \
+        ../Source/ui_unix/PH_HidUnix.cpp \
+        ../Source/ui_unix/settingsdialog.cpp
 
 HEADERS  += ../Source/ui_unix/mainwindow.h \
             ../Source/ui_unix/GSH_OpenGLUnix.h \
             ../Source/ui_unix/global.h \
-            ../Source/ui_unix/PH_HidUnix.h
+            ../Source/ui_unix/StatsManager.h \
+            ../Source/ui_unix/PH_HidUnix.h \
+            ../Source/ui_unix/settingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui
 
 unix:!macx: LIBS += -L$$PWD/build/ -lPlay
 
@@ -55,6 +60,6 @@ unix:!macx: PRE_TARGETDEPS += $$PWD/../../../boost_1_61_0/stage/lib/libboost_sys
                               $$PWD/../../../boost_1_61_0/stage/lib/libboost_filesystem.a \
                               $$PWD/../../../boost_1_61_0/stage/lib/libboost_chrono.a
 
-LIBS += -lX11 -lGLEW -lz -lbz2
+LIBS += -lX11 -lGLEW -lz -lbz2 -lopenal
 
 QMAKE_CXXFLAGS += -std=c++11

@@ -7,6 +7,7 @@
 
 #include "AppConfig.h"
 #include "PS2VM_Preferences.h"
+#include "StatsManager.h"
 #include "PH_HidUnix.h"
 
 
@@ -23,12 +24,19 @@ public:
     ~MainWindow();
     WId getOpenGLPanel();
     void setOpenGlPanelSize();
+    void createStatusBar();
     void initEmu();
+    void SetupSoundHandler();
+    void Setupfpscounter();
 
+    QLabel* fpsLabel;
+    QLabel* dcLabel;
+    CStatsManager* StatsManager;
     CPH_HidUnix* padhandler = nullptr;
 
 public slots:
     void on_openGLWidget_resized();
+    void setFPS();
 
 private slots:
     void on_actionOpen_Game_triggered();
@@ -40,6 +48,8 @@ private slots:
     void on_actionExit_triggered();
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
+
+    void on_actionSettings_triggered();
 protected:
 
 private:

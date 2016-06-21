@@ -1,13 +1,13 @@
 #include "mainwindow.h"
-
+#include "settingsdialog.h"
 
 
 #include <QFileDialog>
-
+#include <QTimer>
 
 #include "global.h"
 #include "GSH_OpenGLUnix.h"
-#undef None
+#include "tools/PsfPlayer/Source/SH_OpenAL.h"
 
 #include "ui_mainwindow.h"
 
@@ -39,14 +39,60 @@ void MainWindow::initEmu(){
     g_virtualMachine->Initialize();
 
     g_virtualMachine->CreateGSHandler(CGSH_OpenGLUnix::GetFactoryFunction(getOpenGLPanel()));
+    SetupSoundHandler();
 
     g_virtualMachine->CreatePadHandler(CPH_HidUnix::GetFactoryFunction());
     padhandler = (CPH_HidUnix*)g_virtualMachine->GetPadHandler();
+
+    StatsManager = new CStatsManager();
+    g_virtualMachine->m_ee->m_gs->OnNewFrame.connect(boost::bind(&CStatsManager::OnNewFrame, StatsManager, _1));
+
+    createStatusBar();
+
+    fpstimer = new QTimer(this);
+    connect(fpstimer, SIGNAL(timeout()), this, SLOT(setFPS()));
+
+    Setupfpscounter();
 }
 
 void MainWindow::setOpenGlPanelSize()
 {
     on_openGLWidget_resized();
+}
+
+void MainWindow::SetupSoundHandler()
+{
+    if(g_virtualMachine != nullptr){
+        bool audioEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_AUDIO_ENABLEOUTPUT);
+        if(audioEnabled)
+        {
+            g_virtualMachine->CreateSoundHandler(&CSH_OpenAL::HandlerFactory);
+        }
+        else
+        {
+            g_virtualMachine->DestroySoundHandler();
+        }
+    }
+}
+
+void MainWindow::Setupfpscounter()
+{
+    if(g_virtualMachine != nullptr){
+        bool fpsEnabled = CAppConfig::GetInstance().GetPreferenceBoolean(PREFERENCE_UI_SHOWFPS);
+        if(fpsEnabled)
+        {
+            fpsLabel->show();
+            dcLabel->show();
+            fpstimer->stop();
+            fpstimer->start(1000);
+        }
+        else
+        {
+            fpstimer->stop();
+            fpsLabel->hide();
+            dcLabel->hide();
+        }
+    }
 }
 
 void MainWindow::on_openGLWidget_resized()
@@ -122,7 +168,6 @@ void MainWindow::on_actionExit_triggered()
     exit(0);
 }
 
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if (padhandler != nullptr)
@@ -133,4 +178,38 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     if (padhandler != nullptr)
             CPH_HidUnix::InputValueCallbackReleased(padhandler, event->key());
+}
+
+void MainWindow::createStatusBar()
+{
+    fpsLabel = new QLabel(" fps:00 ");
+    fpsLabel->setAlignment(Qt::AlignHCenter);
+    fpsLabel->setMinimumSize(fpsLabel->sizeHint());
+
+    dcLabel = new QLabel(" dc:0000 ");
+    dcLabel->setAlignment(Qt::AlignHCenter);
+    dcLabel->setMinimumSize(dcLabel->sizeHint());
+
+    statusBar()->addWidget(fpsLabel);
+    statusBar()->addWidget(dcLabel);
+}
+
+void MainWindow::setFPS()
+{
+    int frames = StatsManager->GetFrames();
+    int drawCalls = StatsManager->GetDrawCalls();
+    int dcpf = (frames != 0) ? (drawCalls / frames) : 0;
+    //fprintf(stderr, "%d f/s, %d dc/f\n", frames, dcpf);
+    StatsManager->ClearStats();
+    fpsLabel->setText(QString(" fps: %1 ").arg(frames));
+    dcLabel->setText(QString(" dc: %1 ").arg(dcpf));
+}
+
+void MainWindow::on_actionSettings_triggered()
+{
+    SettingsDialog sd;
+    sd.exec();
+    SetupSoundHandler();
+    Setupfpscounter();
+    CAppConfig::GetInstance().Save();
 }
