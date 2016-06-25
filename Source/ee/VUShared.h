@@ -36,6 +36,7 @@ namespace VUShared
 		unsigned int			readI1;
 		bool					syncQ;
 		bool					readQ;
+		bool					readFlags;
 	};
 
 	struct VUINSTRUCTION;
