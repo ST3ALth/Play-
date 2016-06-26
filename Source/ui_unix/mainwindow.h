@@ -28,6 +28,9 @@ public:
     void initEmu();
     void SetupSoundHandler();
     void Setupfpscounter();
+    void createOpenGlPanel();
+
+    QWindow* openglpanel;
 
     QLabel* fpsLabel;
     QLabel* dcLabel;
@@ -35,7 +38,7 @@ public:
     CPH_HidUnix* padhandler = nullptr;
 
 public slots:
-    void on_openGLWidget_resized();
+    void openGLWindow_resized();
     void setFPS();
 
 private slots:
