@@ -24,22 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-
-
-void MainWindow::createOpenGlPanel()
-{
-    QSurfaceFormat format;
-    format.setVersion(3, 2);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
 
     openglpanel = new OpenGLWindow;
-    openglpanel->show();
+
     QWidget * newo = QWidget::createWindowContainer(openglpanel);
     ui->gridLayout->addWidget(newo);
     connect(openglpanel, SIGNAL(heightChanged(int)), this, SLOT(openGLWindow_resized()));
@@ -47,6 +34,17 @@ void MainWindow::createOpenGlPanel()
 
     connect(openglpanel, SIGNAL(keyUp(QKeyEvent*)), this, SLOT(keyReleaseEvent(QKeyEvent*)));
     connect(openglpanel, SIGNAL(keyDown(QKeyEvent*)), this, SLOT(keyPressEvent(QKeyEvent*)));
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::showEvent(QShowEvent* event)
+{
+    QMainWindow::showEvent(event);
+    initEmu();
 }
 
 void MainWindow::initEmu(){
